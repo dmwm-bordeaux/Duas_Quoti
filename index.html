@@ -47,6 +47,7 @@ body.night .tab.active{background:var(--gold);color:#1F2937}
 .card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 2px 14px var(--shadow);
   border-left:5px solid var(--gold);transition:border-color .3s}
 .card.done{border-left-color:var(--done)}
+.card.hide{display:none}
 .card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .card-title{font-size:19px;font-weight:700;color:var(--title)}
 .card-sub{font-size:14px;color:var(--muted);margin-top:2px}
@@ -66,6 +67,17 @@ body.night .tab.active{background:var(--gold);color:#1F2937}
 body.no-ph .ph{display:none}
 body.no-tr .tr{display:none}
 .note{font-size:15px;color:var(--muted);margin:0 4px 14px;line-height:1.5}
+
+/* Liste des sourates */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:var(--card);color:var(--text);border:1.5px solid var(--border);padding:8px 14px;border-radius:999px;
+  font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px;transition:all .2s}
+.chip:hover{transform:translateY(-1px)}
+.chip.current{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+body.night .chip.current{background:var(--gold);border-color:var(--gold);color:#1F2937}
+.chip .dot{width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor;opacity:.55}
+.chip.done .dot{background:var(--done);border-color:var(--done);opacity:1}
+.nav{display:flex;justify-content:space-between;gap:10px;margin:-4px 0 16px}
 
 /* Tasbih */
 .tasbih{text-align:center}
@@ -121,6 +133,299 @@ const TAHLIL_SHORT = [
   {ar:'لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', ph:"lahou l-moulkou wa lahou l-hamd, wa houwa 'alâ koulli chay'in qadîr."}
 ];
 
+const BASMALA = {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'};
+
+/* Les 3 sourates de protection (utilisées dans l'onglet « Les 3 sourates » et dans « Al-Qur'an ») */
+const S112 = {id:'ikhlas', title:'112 · Al-Ikhlâs', sub:'الْإِخْلَاص', n:1,
+  lines:[
+    BASMALA,
+    {ar:'قُلْ هُوَ اللهُ أَحَدٌ', ph:'Qoul houwa llâhou ahad'},
+    {ar:'اللهُ الصَّمَدُ', ph:'Allâhou s-samad'},
+    {ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ', ph:'Lam yalid wa lam yoûlad'},
+    {ar:'وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', ph:'Wa lam yakoun lahou koufouwan ahad'}],
+  tr:"Dis : Il est Allah, Unique. Allah, le Seul à être imploré. Il n'a pas engendré et n'a pas été engendré. Et nul n'est égal à Lui."};
+const S113 = {id:'falaq', title:'113 · Al-Falaq', sub:'الْفَلَق', n:1,
+  lines:[
+    BASMALA,
+    {ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ', ph:"Qoul a'oûdhou bi-rabbi l-falaq"},
+    {ar:'مِنْ شَرِّ مَا خَلَقَ', ph:'min charri mâ khalaq'},
+    {ar:'وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ', ph:'wa min charri ghâsiqin idhâ waqab'},
+    {ar:'وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ', ph:"wa min charri n-naffâthâti fi l-'ouqad"},
+    {ar:'وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', ph:'wa min charri hâsidin idhâ hasad'}],
+  tr:"Dis : Je cherche protection auprès du Seigneur de l'aube naissante, contre le mal de ce qu'Il a créé, contre le mal de l'obscurité quand elle s'étend, contre le mal de celles qui soufflent sur les nœuds, et contre le mal de l'envieux quand il envie."};
+const S114 = {id:'nas', title:'114 · An-Nâs', sub:'النَّاس', n:1,
+  lines:[
+    BASMALA,
+    {ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', ph:"Qoul a'oûdhou bi-rabbi n-nâs"},
+    {ar:'مَلِكِ النَّاسِ', ph:'maliki n-nâs'},
+    {ar:'إِلَهِ النَّاسِ', ph:'ilâhi n-nâs'},
+    {ar:'مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ', ph:'min charri l-waswâsi l-khannâs'},
+    {ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ', ph:'alladhî youwaswisou fî soudoûri n-nâs'},
+    {ar:'مِنَ الْجِنَّةِ وَالنَّاسِ', ph:'mina l-jinnati wa n-nâs'}],
+  tr:"Dis : Je cherche protection auprès du Seigneur des hommes, Souverain des hommes, Dieu des hommes, contre le mal du tentateur furtif, qui souffle le mal dans les poitrines des hommes, qu'il soit djinn ou humain.",
+  src:'Abû Dâwûd 1523'};
+
+/* Onglet « Al-Qur'an » : Al-Fâtiha puis les petites sourates, de la 114 à la 94 */
+const QURAN = [
+  {id:'q-fatiha', title:'1 · Al-Fâtiha', sub:'الْفَاتِحَة', n:1,
+   lines:[
+     BASMALA,
+     {ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', ph:"Al-hamdou li-llâhi rabbi l-'âlamîn"},
+     {ar:'الرَّحْمَنِ الرَّحِيمِ', ph:'Ar-rahmâni r-rahîm'},
+     {ar:'مَالِكِ يَوْمِ الدِّينِ', ph:'Mâliki yawmi d-dîn'},
+     {ar:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', ph:"Iyyâka na'boudou wa iyyâka nasta'în"},
+     {ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', ph:'Ihdina s-sirâta l-moustaqîm'},
+     {ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ', ph:"Sirâta lladhîna an'amta 'alayhim"},
+     {ar:'غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ', ph:"ghayri l-maghdoûbi 'alayhim wa lâ d-dâllîn"}],
+   tr:"Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux. Louange à Allah, Seigneur des mondes, le Tout Miséricordieux, le Très Miséricordieux, Maître du Jour de la rétribution. C'est Toi que nous adorons et c'est Toi dont nous implorons l'aide. Guide-nous dans le droit chemin, le chemin de ceux que Tu as comblés de faveurs, non pas de ceux qui encourent Ta colère, ni des égarés.",
+   src:'Coran 1'},
+  {...S114, id:'q-nas', src:'Coran 114'},
+  {...S113, id:'q-falaq', src:'Coran 113'},
+  {...S112, id:'q-ikhlas', src:'Coran 112'},
+  {id:'q-masad', title:'111 · Al-Masad', sub:'الْمَسَد', n:1,
+   lines:[
+     BASMALA,
+     {ar:'تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ', ph:'Tabbat yadâ abî lahabin wa tabb'},
+     {ar:'مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ', ph:'Mâ aghnâ \'anhou mâlouhou wa mâ kasab'},
+     {ar:'سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ', ph:'Sayaslâ nâran dhâta lahab'},
+     {ar:'وَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ', ph:"Wa mra'atouhou hammâlata l-hatab"},
+     {ar:'فِي جِيدِهَا حَبْلٌ مِّن مَّسَدٍ', ph:'Fî jîdihâ hablun min masad'}],
+   tr:"Que périssent les deux mains d'Abou Lahab, et qu'il périsse lui-même ! Ni sa fortune ni ce qu'il a acquis ne lui seront d'aucune utilité. Il sera brûlé dans un feu plein de flammes, et sa femme, la porteuse de bois, aura au cou une corde de fibres.",
+   src:'Coran 111'},
+  {id:'q-nasr', title:'110 · An-Nasr', sub:'النَّصْر', n:1,
+   lines:[
+     BASMALA,
+     {ar:'إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ', ph:"Idhâ jâ'a nasroullâhi wa l-fath"},
+     {ar:'وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا', ph:"Wa ra'ayta n-nâsa yadkhouloûna fî dîni llâhi afwâjâ"},
+     {ar:'فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ إِنَّهُ كَانَ تَوَّابًا', ph:'Fa-sabbih bi-hamdi rabbika wa staghfirhou innahou kâna tawwâbâ'}],
+   tr:"Lorsque vient le secours d'Allah ainsi que la victoire, et que tu vois les gens entrer en foule dans la religion d'Allah, alors glorifie ton Seigneur par Sa louange et implore Son pardon. Car Il est Accueillant au repentir.",
+   src:'Coran 110'},
+  {id:'q-kafirun', title:'109 · Al-Kâfirûn', sub:'الْكَافِرُون', n:1,
+   lines:[
+     BASMALA,
+     {ar:'قُلْ يَا أَيُّهَا الْكَافِرُونَ', ph:'Qoul yâ ayyouhâ l-kâfiroûn'},
+     {ar:'لَا أَعْبُدُ مَا تَعْبُدُونَ', ph:"Lâ a'boudou mâ ta'boudoûn"},
+     {ar:'وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ', ph:"Wa lâ antoum 'âbidoûna mâ a'boud"},
+     {ar:'وَلَا أَنَا عَابِدٌ مَّا عَبَدتُّمْ', ph:"Wa lâ anâ 'âbidoun mâ 'abadttoum"},
+     {ar:'وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ', ph:"Wa lâ antoum 'âbidoûna mâ a'boud"},
+     {ar:'لَكُمْ دِينُكُمْ وَلِيَ دِينِ', ph:'Lakoum dînoukoum wa liya dîn'}],
+   tr:"Dis : Ô vous les mécréants ! Je n'adore pas ce que vous adorez, et vous n'adorez pas ce que j'adore. Je ne suis pas adorateur de ce que vous avez adoré, et vous n'êtes pas adorateurs de ce que j'adore. À vous votre religion, et à moi ma religion.",
+   src:'Coran 109'},
+  {id:'q-kawthar', title:'108 · Al-Kawthar', sub:'الْكَوْثَر', n:1,
+   lines:[
+     BASMALA,
+     {ar:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ', ph:"Innâ a'taynâka l-kawthar"},
+     {ar:'فَصَلِّ لِرَبِّكَ وَانْحَرْ', ph:'Fa-salli li-rabbika wa nhar'},
+     {ar:'إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ', ph:"Inna châni'aka houwa l-abtar"}],
+   tr:"Nous t'avons certes donné l'abondance. Prie donc ton Seigneur et sacrifie. C'est celui qui te hait qui sera sans postérité.",
+   src:'Coran 108'},
+  {id:'q-maun', title:"107 · Al-Mâ'ûn", sub:'الْمَاعُون', n:1,
+   lines:[
+     BASMALA,
+     {ar:'أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ', ph:"Ara'ayta lladhî youkadhdhibou bi-d-dîn"},
+     {ar:'فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ', ph:"Fa-dhâlika lladhî yadou''ou l-yatîm"},
+     {ar:'وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ', ph:"Wa lâ yahouddou 'alâ ta'âmi l-miskîn"},
+     {ar:'فَوَيْلٌ لِّلْمُصَلِّينَ', ph:'Fa-wayloun li-l-mousallîn'},
+     {ar:'الَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ', ph:"Alladhîna houm 'an salâtihim sâhoûn"},
+     {ar:'الَّذِينَ هُمْ يُرَاءُونَ', ph:"Alladhîna houm yourâ'oûn"},
+     {ar:'وَيَمْنَعُونَ الْمَاعُونَ', ph:"Wa yamna'oûna l-mâ'oûn"}],
+   tr:"As-tu vu celui qui traite de mensonge la rétribution ? C'est lui qui repousse l'orphelin et n'encourage pas à nourrir le pauvre. Malheur donc à ceux qui prient, tout en étant distraits de leur prière, qui cherchent à se faire voir, et refusent l'aide la plus minime.",
+   src:'Coran 107'},
+  {id:'q-quraysh', title:'106 · Qoraych', sub:'قُرَيْش', n:1,
+   lines:[
+     BASMALA,
+     {ar:'لِإِيلَافِ قُرَيْشٍ', ph:'Li-îlâfi Qoraych'},
+     {ar:'إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ', ph:"Îlâfihim rihlata ch-chitâ'i wa s-sayf"},
+     {ar:'فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ', ph:"Fal-ya'boudoû rabba hâdhâ l-bayt"},
+     {ar:'الَّذِي أَطْعَمَهُم مِّن جُوعٍ وَآمَنَهُم مِّنْ خَوْفٍ', ph:"Alladhî at'amahoum min joû'in wa âmanahoum min khawf"}],
+   tr:"Pour l'union des Qoraychites, leur union lors du voyage d'hiver et d'été, qu'ils adorent donc le Seigneur de cette Maison, qui les a nourris contre la faim et rassurés contre la peur.",
+   src:'Coran 106'},
+  {id:'q-fil', title:'105 · Al-Fîl', sub:'الْفِيل', n:1,
+   lines:[
+     BASMALA,
+     {ar:'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ', ph:"Alam tara kayfa fa'ala rabbouka bi-ashâbi l-fîl"},
+     {ar:'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ', ph:"Alam yaj'al kaydahoum fî tadlîl"},
+     {ar:'وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ', ph:"Wa arsala 'alayhim tayran abâbîl"},
+     {ar:'تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ', ph:'Tarmîhim bi-hijâratin min sijjîl'},
+     {ar:'فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ', ph:"Fa-ja'alahoum ka-'asfin ma'koûl"}],
+   tr:"N'as-tu pas vu comment ton Seigneur a agi envers les gens de l'Éléphant ? N'a-t-Il pas rendu leur ruse vaine ? Il envoya sur eux des oiseaux par volées, qui leur lançaient des pierres d'argile durcie, et Il les rendit semblables à une paille mâchée.",
+   src:'Coran 105'},
+  {id:'q-humaza', title:'104 · Al-Houmaza', sub:'الْهُمَزَة', n:1,
+   lines:[
+     BASMALA,
+     {ar:'وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ', ph:'Wayloun li-koulli houmazatin loumazah'},
+     {ar:'الَّذِي جَمَعَ مَالًا وَعَدَّدَهُ', ph:"Alladhî jama'a mâlan wa 'addadah"},
+     {ar:'يَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ', ph:'Yahsabou anna mâlahou akhladah'},
+     {ar:'كَلَّا لَيُنبَذَنَّ فِي الْحُطَمَةِ', ph:'Kallâ layounbadhanna fi l-houtamah'},
+     {ar:'وَمَا أَدْرَاكَ مَا الْحُطَمَةُ', ph:'Wa mâ adrâka mâ l-houtamah'},
+     {ar:'نَارُ اللَّهِ الْمُوقَدَةُ', ph:'Nâroullâhi l-mouqadah'},
+     {ar:'الَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ', ph:"Allatî tattali'ou 'alâ l-af'idah"},
+     {ar:'إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ', ph:"Innahâ 'alayhim mou'sadah"},
+     {ar:'فِي عَمَدٍ مُّمَدَّدَةٍ', ph:"Fî 'amadin moumaddadah"}],
+   tr:"Malheur à tout calomniateur diffamateur, qui amasse une fortune et la compte et la recompte, pensant que sa fortune l'immortalisera ! Non ! Il sera certes jeté dans la Houtama. Et qui te dira ce qu'est la Houtama ? C'est le feu d'Allah attisé, qui monte jusqu'aux cœurs. Il se refermera sur eux, en colonnes étirées.",
+   src:'Coran 104'},
+  {id:'q-asr', title:"103 · Al-'Asr", sub:'الْعَصْر', n:1,
+   lines:[
+     BASMALA,
+     {ar:'وَالْعَصْرِ', ph:"Wa l-'asr"},
+     {ar:'إِنَّ الْإِنسَانَ لَفِي خُسْرٍ', ph:'Inna l-insâna la-fî khousr'},
+     {ar:'إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ', ph:"Illa lladhîna âmanoû wa 'amiloû s-sâlihât"},
+     {ar:'وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ', ph:'Wa tawâsaw bi-l-haqq wa tawâsaw bi-s-sabr'}],
+   tr:"Par le temps ! L'homme est certes en perdition, sauf ceux qui croient, accomplissent de bonnes œuvres, s'enjoignent mutuellement la vérité et s'enjoignent mutuellement l'endurance.",
+   src:'Coran 103'},
+  {id:'q-takathur', title:'102 · At-Takâthour', sub:'التَّكَاثُر', n:1,
+   lines:[
+     BASMALA,
+     {ar:'أَلْهَاكُمُ التَّكَاثُرُ', ph:"Alhâkoumou t-takâthour"},
+     {ar:'حَتَّىٰ زُرْتُمُ الْمَقَابِرَ', ph:"Hattâ zourtoumou l-maqâbir"},
+     {ar:'كَلَّا سَوْفَ تَعْلَمُونَ', ph:"Kallâ sawfa ta'lamoûn"},
+     {ar:'ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ', ph:"Thouma kallâ sawfa ta'lamoûn"},
+     {ar:'كَلَّا لَوْ تَعْلَمُونَ عِلْمَ الْيَقِينِ', ph:"Kallâ law ta'lamoûna 'ilma l-yaqîn"},
+     {ar:'لَتَرَوُنَّ الْجَحِيمَ', ph:"La-tarawunna l-jahîm"},
+     {ar:'ثُمَّ لَتَرَوُنَّهَا عَيْنَ الْيَقِينِ', ph:"Thouma la-tarawunnahâ 'ayna l-yaqîn"},
+     {ar:'ثُمَّ لَتُسْأَلُنَّ يَوْمَئِذٍ عَنِ النَّعِيمِ', ph:"Thouma la-tous'alunna yawma'idhin 'ani n-na'îm"}],
+   tr:"La rivalité dans l'accumulation vous distrait, jusqu'à ce que vous visitiez les tombes. Non ! Vous saurez bientôt. Encore une fois, non ! Vous saurez bientôt. Non ! Si vous saviez de science certaine ! Vous verrez certes la Fournaise. Puis vous la verrez certes de l'œil de la certitude. Puis, ce jour-là, vous serez interrogés sur les délices.",
+   src:'Coran 102'},
+  {id:'q-qaria', title:"101 · Al-Qâri'a", sub:'الْقَارِعَة', n:1,
+   lines:[
+     BASMALA,
+     {ar:'الْقَارِعَةُ', ph:"Al-qâri'ah"},
+     {ar:'مَا الْقَارِعَةُ', ph:"Mâ l-qâri'ah"},
+     {ar:'وَمَا أَدْرَاكَ مَا الْقَارِعَةُ', ph:"Wa mâ adrâka mâ l-qâri'ah"},
+     {ar:'يَوْمَ يَكُونُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوثِ', ph:"Yawma yakoûnou n-nâsou ka-l-farâchi l-mabthoûth"},
+     {ar:'وَتَكُونُ الْجِبَالُ كَالْعِهْنِ الْمَنفُوشِ', ph:"Wa takoûnou l-jibâlou ka-l-'ihni l-manfoûch"},
+     {ar:'فَأَمَّا مَن ثَقُلَتْ مَوَازِينُهُ', ph:"Fa-ammâ man thaqoulat mawâzînouh"},
+     {ar:'فَهُوَ فِي عِيشَةٍ رَّاضِيَةٍ', ph:"Fa-houwa fî 'îchatin râdiyah"},
+     {ar:'وَأَمَّا مَنْ خَفَّتْ مَوَازِينُهُ', ph:"Wa ammâ man khaffat mawâzînouh"},
+     {ar:'فَأُمُّهُ هَاوِيَةٌ', ph:"Fa-oummouhou hâwiyah"},
+     {ar:'وَمَا أَدْرَاكَ مَا هِيَهْ', ph:"Wa mâ adrâka mâ hiyah"},
+     {ar:'نَارٌ حَامِيَةٌ', ph:"Nârun hâmiyah"}],
+   tr:"Le Fracas ! Qu'est-ce que le Fracas ? Et qui te dira ce qu'est le Fracas ? Le jour où les gens seront comme des papillons dispersés, et où les montagnes seront comme de la laine cardée. Celui dont les balances seront lourdes aura une vie agréable. Celui dont les balances seront légères aura pour demeure l'Abîme. Et qui te dira ce qu'il est ? Un feu ardent.",
+   src:'Coran 101'},
+  {id:'q-adiyat', title:"100 · Al-'Âdiyât", sub:'الْعَادِيَات', n:1,
+   lines:[
+     BASMALA,
+     {ar:'وَالْعَادِيَاتِ ضَبْحًا', ph:"Wa l-'âdiyâti dabhâ"},
+     {ar:'فَالْمُورِيَاتِ قَدْحًا', ph:"Fa-l-moûriyâti qadhâ"},
+     {ar:'فَالْمُغِيرَاتِ صُبْحًا', ph:"Fa-l-moughîrâti soubhâ"},
+     {ar:'فَأَثَرْنَ بِهِ نَقْعًا', ph:"Fa-atharna bihî naq'â"},
+     {ar:'فَوَسَطْنَ بِهِ جَمْعًا', ph:"Fa-wasatna bihî jam'â"},
+     {ar:'إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ', ph:"Inna l-insâna li-rabbihî la-kanoûd"},
+     {ar:'وَإِنَّهُ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ', ph:"Wa innahou 'alâ dhâlika la-chahîd"},
+     {ar:'وَإِنَّهُ لِحُبِّ الْخَيْرِ لَشَدِيدٌ', ph:"Wa innahou li-hubbi l-khayri la-chadîd"},
+     {ar:'أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِي الْقُبُورِ', ph:"Afalâ ya'lamou idhâ bou'thira mâ fi l-qoubûr"},
+     {ar:'وَحُصِّلَ مَا فِي الصُّدُورِ', ph:"Wa houssila mâ fi s-soudoûr"},
+     {ar:'إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌ', ph:"Inna rabbahoum bihim yawma'idhin la-khabîr"}],
+   tr:"Par les coursiers qui haletent, qui font jaillir des étincelles, qui attaquent à l'aube, soulevant la poussière et pénétrant au milieu de la troupe ! L'homme est certes ingrat envers son Seigneur, il en est lui-même témoin, et son amour des richesses est violent. Ne sait-il pas que, lorsque seront bouleversées les tombes et que sera dévoilé ce que contiennent les poitrines, ce jour-là, leur Seigneur sera parfaitement informé à leur sujet ?",
+   src:'Coran 100'},
+  {id:'q-zalzala', title:'99 · Az-Zalzala', sub:'الزَّلْزَلَة', n:1,
+   lines:[
+     BASMALA,
+     {ar:'إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا', ph:"Idhâ zulzilati l-ardou zilzâlahâ"},
+     {ar:'وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا', ph:"Wa akhrajati l-ardou athqâlahâ"},
+     {ar:'وَقَالَ الْإِنسَانُ مَا لَهَا', ph:"Wa qâla l-insânou mâ lahâ"},
+     {ar:'يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا', ph:"Yawma'idhin touhaddithou akhbârahâ"},
+     {ar:'بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا', ph:"Bi-anna rabbaka awhâ lahâ"},
+     {ar:'يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ', ph:"Yawma'idhin yasdourou n-nâsou achtâtan li-yaraw a'mâlahoum"},
+     {ar:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ', ph:"Fa-man ya'mal mithqâla dharratin khayran yarah"},
+     {ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ', ph:"Wa man ya'mal mithqâla dharratin charran yarah"}],
+   tr:"Quand la terre sera secouée par son tremblement, qu'elle rejettera ses fardeaux, et que l'homme dira : « Qu'a-t-elle ? », ce jour-là, elle racontera ses nouvelles, selon ce que son Seigneur lui aura révélé. Ce jour-là, les gens sortiront en groupes dispersés pour qu'on leur montre leurs œuvres. Quiconque aura fait un bien du poids d'un atome le verra, et quiconque aura fait un mal du poids d'un atome le verra.",
+   src:'Coran 99'},
+  {id:'q-bayyina', title:'98 · Al-Bayyina', sub:'الْبَيِّنَة', n:1,
+   lines:[
+     BASMALA,
+     {ar:'لَمْ يَكُنِ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ الْبَيِّنَةُ', ph:"Lam yakoun-illadhîna kafaroû min ahli l-kitâbi wa l-mouchrikîna mounfakkîna hattâ ta'tiyahoumou l-bayyinah"},
+     {ar:'رَسُولٌ مِّنَ اللَّهِ يَتْلُو صُحُفًا مُّطَهَّرَةً', ph:"Rasoûloun mina llâhi yatloû souhoufan moutahharah"},
+     {ar:'فِيهَا كُتُبٌ قَيِّمَةٌ', ph:"Fîhâ koutoubun qayyimah"},
+     {ar:'وَمَا تَفَرَّقَ الَّذِينَ أُوتُوا الْكِتَابَ إِلَّا مِن بَعْدِ مَا جَاءَتْهُمُ الْبَيِّنَةُ', ph:"Wa mâ tafarraqa lladhîna oûtoû l-kitâba illâ min ba'di mâ jâ'at-houmou l-bayyinah"},
+     {ar:'وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ مُخْلِصِينَ لَهُ الدِّينَ حُنَفَاءَ وَيُقِيمُوا الصَّلَاةَ وَيُؤْتُوا الزَّكَاةَ ۚ وَذَٰلِكَ دِينُ الْقَيِّمَةِ', ph:"Wa mâ oumirou illâ li-ya'boudoû llâha moukhlisîna lahou d-dîna houna-fâ'a wa youqîmoû s-salâta wa youtoû z-zakâh, wa dhâlika dînou l-qayyimah"},
+     {ar:'إِنَّ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ فِي نَارِ جَهَنَّمَ خَالِدِينَ فِيهَا ۚ أُولَٰئِكَ هُمْ شَرُّ الْبَرِيَّةِ', ph:"Inna lladhîna kafaroû min ahli l-kitâbi wa l-mouchrikîna fî nâri jahannama khâlidîna fîhâ, oulâ'ika houm charrou l-bariyyah"},
+     {ar:'إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ أُولَٰئِكَ هُمْ خَيْرُ الْبَرِيَّةِ', ph:"Inna lladhîna âmanoû wa 'amiloû s-sâlihâti oulâ'ika houm khayrou l-bariyyah"},
+     {ar:'جَزَاؤُهُمْ عِندَ رَبِّهِمْ جَنَّاتُ عَدْنٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا أَبَدًا ۖ رَضِيَ اللَّهُ عَنْهُمْ وَرَضُوا عَنْهُ ۚ ذَٰلِكَ لِمَنْ خَشِيَ رَبَّهُ', ph:"Jazâ'ouhoum 'inda rabbihim jannâtou 'adnin tajrî min tahtihâ l-anhâro khâlidîna fîhâ abadâ, radiya llâhou 'anhoum wa radoû 'anh, dhâlika li-man khachiya rabbah"}],
+   tr:"Les infidèles parmi les gens du Livre et les polythéistes ne devaient pas se détacher de leur mécréance jusqu'à ce que leur vienne la preuve évidente : un messager d'Allah qui récite des feuillets purifiés contenant des écrits de valeur. Et ceux à qui le Livre a été donné ne se sont divisés qu'après que la preuve évidente leur est parvenue. Il ne leur avait été commandé que d'adorer Allah en Lui vouant un culte sincère, en toute pureté, d'accomplir la prière et d'acquitter la zakât. Telle est la religion de droiture. Ceux qui ne croient pas, parmi les gens du Livre et les polythéistes, iront au feu de l'Enfer, pour y demeurer éternellement. Ce sont les pires des créatures. Ceux qui croient et accomplissent de bonnes œuvres, ce sont les meilleurs des créatures. Leur récompense auprès de leur Seigneur : les jardins d'Éden sous lesquels coulent les ruisseaux, où ils demeureront éternellement. Allah les agrée et ils L'agréent. Voilà pour celui qui craint son Seigneur.",
+   src:'Coran 98'},
+  {id:'q-qadr', title:'97 · Al-Qadr', sub:'الْقَدْر', n:1,
+   lines:[
+     BASMALA,
+     {ar:'إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ', ph:"Innâ anzalnâhou fî laylati l-qadr"},
+     {ar:'وَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ', ph:"Wa mâ adrâka mâ laylatou l-qadr"},
+     {ar:'لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ', ph:"Laylatou l-qadri khayroun min alfi chahr"},
+     {ar:'تَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ', ph:"Tanazzalou l-malâ'ikatou wa r-roûhou fîhâ bi-idhni rabbihim min koulli amr"},
+     {ar:'سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ', ph:"Salâm, hiya hattâ matla'i l-fajr"}],
+   tr:"Nous l'avons certes fait descendre durant la Nuit du Destin. Et qui te dira ce qu'est la Nuit du Destin ? La Nuit du Destin vaut mieux que mille mois. Durant cette nuit descendent les anges et l'Esprit, par permission de leur Seigneur, pour tout ordre. Elle est paix, jusqu'à l'apparition de l'aube.",
+   src:'Coran 97'},
+  {id:'q-alaq', title:"96 · Al-'Alaq", sub:'الْعَلَق', n:1,
+   lines:[
+     BASMALA,
+     {ar:'اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ', ph:"Iqra' bismi rabbika lladhî khalaq"},
+     {ar:'خَلَقَ الْإِنسَانَ مِنْ عَلَقٍ', ph:"Khalaqa l-insâna min 'alaq"},
+     {ar:'اقْرَأْ وَرَبُّكَ الْأَكْرَمُ', ph:"Iqra' wa rabbouka l-akram"},
+     {ar:'الَّذِي عَلَّمَ بِالْقَلَمِ', ph:"Alladhî 'allama bi-l-qalam"},
+     {ar:'عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ', ph:"'Allama l-insâna mâ lam ya'lam"},
+     {ar:'كَلَّا إِنَّ الْإِنسَانَ لَيَطْغَىٰ', ph:"Kallâ inna l-insâna la-yatghâ"},
+     {ar:'أَن رَّآهُ اسْتَغْنَىٰ', ph:"An ra'âhou staghnâ"},
+     {ar:'إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ', ph:"Inna ilâ rabbika r-rouj'â"},
+     {ar:'أَرَأَيْتَ الَّذِي يَنْهَىٰ', ph:"Ara'ayta lladhî yanhâ"},
+     {ar:'عَبْدًا إِذَا صَلَّىٰ', ph:"'Abdan idhâ sallâ"},
+     {ar:'أَرَأَيْتَ إِن كَانَ عَلَى الْهُدَىٰ', ph:"Ara'ayta in kâna 'alâ l-houdâ"},
+     {ar:'أَوْ أَمَرَ بِالتَّقْوَىٰ', ph:"Aw amara bi-t-taqwâ"},
+     {ar:'أَرَأَيْتَ إِن كَذَّبَ وَتَوَلَّىٰ', ph:"Ara'ayta in kadhdhaba wa tawallâ"},
+     {ar:'أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَىٰ', ph:"Alam ya'lam bi-anna llâha yarâ"},
+     {ar:'كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًا بِالنَّاصِيَةِ', ph:"Kallâ la'in lam yantahi la-nasfa'an bi-n-nâsiyah"},
+     {ar:'نَاصِيَةٍ كَاذِبَةٍ خَاطِئَةٍ', ph:"Nâsiyatin kâdhibatin khâti'ah"},
+     {ar:'فَلْيَدْعُ نَادِيَهُ', ph:"Fal-yad'ou nâdiyah"},
+     {ar:'سَنَدْعُ الزَّبَانِيَةَ', ph:"Sanad'ou z-zabâniyah"},
+     {ar:'كَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب', ph:"Kallâ lâ tou'ih wa sjoud wa qtarib"}],
+   tr:"Lis, au nom de ton Seigneur qui a créé, qui a créé l'homme d'une adhérence. Lis ! Ton Seigneur est le Très Généreux, qui a enseigné par la plume, a enseigné à l'homme ce qu'il ne savait pas. Non ! L'homme devient certes rebelle dès qu'il se voit riche. C'est vers ton Seigneur qu'est le retour. As-tu vu celui qui interdit à un serviteur de prier ? Vois-tu s'il suit la bonne voie ou s'il ordonne la piété ? Vois-tu s'il traite de mensonge et tourne le dos ? Ne sait-il pas qu'Allah voit ? Non ! S'il ne cesse pas, Nous le saisirons par le toupet, un toupet menteur et pécheur. Qu'il appelle donc son clan ! Nous appellerons les gardiens de l'Enfer. Non ! Ne lui obéis pas. Prosterne-toi et rapproche-toi.",
+   src:'Coran 96 · le dernier verset est un verset de prosternation'},
+  {id:'q-tin', title:'95 · At-Tîn', sub:'التِّين', n:1,
+   lines:[
+     BASMALA,
+     {ar:'وَالتِّينِ وَالزَّيْتُونِ', ph:"Wa t-tîni wa z-zaytoûn"},
+     {ar:'وَطُورِ سِينِينَ', ph:"Wa toûri sînîn"},
+     {ar:'وَهَٰذَا الْبَلَدِ الْأَمِينِ', ph:"Wa hâdhâ l-baladi l-amîn"},
+     {ar:'لَقَدْ خَلَقْنَا الْإِنسَانَ فِي أَحْسَنِ تَقْوِيمٍ', ph:"La-qad khalaqnâ l-insâna fî ahsani taqwîm"},
+     {ar:'ثُمَّ رَدَدْنَاهُ أَسْفَلَ سَافِلِينَ', ph:"Thouma radadnâhou asfala sâfilîn"},
+     {ar:'إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ', ph:"Illa lladhîna âmanoû wa 'amiloû s-sâlihâti fa-lahoum ajroun ghayrou mamnoûn"},
+     {ar:'فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّينِ', ph:"Famâ youkadhdhibouka ba'du bi-d-dîn"},
+     {ar:'أَلَيْسَ اللَّهُ بِأَحْكَمِ الْحَاكِمِينَ', ph:"Alaysa llâhou bi-ahkami l-hâkimîn"}],
+   tr:"Par le figuier et l'olivier, par le mont Sinaï, et par cette cité sûre ! Nous avons certes créé l'homme dans la plus belle stature, puis Nous l'avons rabaissé au plus bas de l'échelle, sauf ceux qui croient et accomplissent de bonnes œuvres : ils auront une récompense jamais interrompue. Qui donc, après cela, te fera traiter de mensonge la rétribution ? Allah n'est-Il pas le plus sage des juges ?",
+   src:'Coran 95'},
+  {id:'q-sharh', title:'94 · Ash-Sharh (Al-Inchirâh)', sub:'الشَّرْح', n:1,
+   lines:[
+     BASMALA,
+     {ar:'أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ', ph:"Alam nachrah laka sadrak"},
+     {ar:'وَوَضَعْنَا عَنكَ وِزْرَكَ', ph:"Wa wada'nâ 'anka wizrak"},
+     {ar:'الَّذِي أَنقَضَ ظَهْرَكَ', ph:"Alladhî anqada zahrak"},
+     {ar:'وَرَفَعْنَا لَكَ ذِكْرَكَ', ph:"Wa rafa'nâ laka dhikrak"},
+     {ar:'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا', ph:"Fa-inna ma'a l-'ousri yousrâ"},
+     {ar:'إِنَّ مَعَ الْعُسْرِ يُسْرًا', ph:"Inna ma'a l-'ousri yousrâ"},
+     {ar:'فَإِذَا فَرَغْتَ فَانصَبْ', ph:"Fa-idhâ faraghta fa-nsab"},
+     {ar:'وَإِلَىٰ رَبِّكَ فَارْغَب', ph:"Wa ilâ rabbika far-ghab"}],
+   tr:"Ne t'avons-Nous pas ouvert ta poitrine, ôté de toi ton fardeau, qui accablait ton dos, et élevé ta renommée ? Certes, avec la difficulté il y a une facilité. Oui, avec la difficulté il y a une facilité. Quand tu as terminé, applique-toi donc, et vers ton Seigneur oriente ton désir.",
+   src:'Coran 94'}
+];
+
+/* Onglet « Fâtiha · Qoraych » : Fâtiha ×1, Qoraych ×99, dernier verset ×18, Salât al-Fâtih */
+const Q1 = QURAN.find(s => s.id === 'q-fatiha'), Q106 = QURAN.find(s => s.id === 'q-quraysh');
+const WIRD = [
+  {...Q1, id:'w-fatiha', title:'1 · Al-Fâtiha, 1 fois', src:'Coran 1'},
+  {...Q106, id:'w-quraysh', title:'2 · Qoraych, 99 fois', n:99,
+   lines:Q106.lines.slice(1), src:'Coran 106'},
+  {...Q106, id:'w-dernier', title:'3 · Dernier verset de Qoraych, 18 fois', sub:'', n:18,
+   lines:[Q106.lines[4]],
+   tr:"Lui qui les a nourris contre la faim et rassurés contre la peur.", src:'Coran 106:4'},
+  {id:'w-fatih', title:'4 · Salât al-Fâtih', sub:'صَلَاةُ الْفَاتِحِ', n:1,
+   lines:[
+     {ar:'اللَّهُمَّ صَلِّ عَلَىٰ سَيِّدِنَا مُحَمَّدٍ الْفَاتِحِ لِمَا أُغْلِقَ', ph:"Allâhoumma salli 'alâ sayyidinâ Mouhammadin il-fâtihi limâ oughliq,"},
+     {ar:'وَالْخَاتِمِ لِمَا سَبَقَ', ph:"wa l-khâtimi limâ sabaq,"},
+     {ar:'نَاصِرِ الْحَقِّ بِالْحَقِّ', ph:"nâsiri l-haqqi bi-l-haqq,"},
+     {ar:'وَالْهَادِي إِلَىٰ صِرَاطِكَ الْمُسْتَقِيمِ', ph:"wa l-hâdî ilâ sirâtika l-moustaqîm,"},
+     {ar:'وَعَلَىٰ آلِهِ حَقَّ قَدْرِهِ وَمِقْدَارِهِ الْعَظِيمِ', ph:"wa 'alâ âlihi haqqa qadrihi wa miqdârihi l-'adhîm."}],
+   tr:"Ô Allah, prie sur notre maître Mouhammad, celui qui ouvre ce qui était fermé, qui scelle ce qui a précédé, qui fait triompher la vérité par la vérité, le guide vers Ton chemin droit, et sur sa famille, à la mesure de sa valeur et de son immense rang.",
+   src:'Salât al-Fâtih'}
+];
+
 const TABS = [
   {id:'pardon', label:'Le pardon', items:[
     {id:'istighfar', title:'Demander pardon', sub:'الاِسْتِغْفَار', n:3,
@@ -158,36 +463,9 @@ const TABS = [
      tr:"Allah ! Nulle divinité sauf Lui, le Vivant, Celui qui subsiste par Lui-même. Ni somnolence ni sommeil ne Le saisissent. À Lui appartient tout ce qui est dans les cieux et sur la terre. Qui peut intercéder auprès de Lui sans Sa permission ? Il connaît leur passé et leur futur, et ils n'embrassent de Sa science que ce qu'Il veut. Son Trône s'étend sur les cieux et la terre, et leur garde ne Lui coûte aucune peine. Il est le Très Haut, le Très Grand.",
      src:'Coran 2:255 · An-Nasâ’î, As-Sunan al-Kubrâ 9848'}
   ]},
-  {id:'sourates', label:'Les 3 sourates', items:[
-    {id:'ikhlas', title:'112 · Al-Ikhlâs', sub:'الْإِخْلَاص', n:1,
-     lines:[
-       {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'},
-       {ar:'قُلْ هُوَ اللهُ أَحَدٌ', ph:'Qoul houwa llâhou ahad'},
-       {ar:'اللهُ الصَّمَدُ', ph:'Allâhou s-samad'},
-       {ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ', ph:'Lam yalid wa lam yoûlad'},
-       {ar:'وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', ph:'Wa lam yakoun lahou koufouwan ahad'}],
-     tr:"Dis : Il est Allah, Unique. Allah, le Seul à être imploré. Il n'a pas engendré et n'a pas été engendré. Et nul n'est égal à Lui."},
-    {id:'falaq', title:'113 · Al-Falaq', sub:'الْفَلَق', n:1,
-     lines:[
-       {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'},
-       {ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ', ph:"Qoul a'oûdhou bi-rabbi l-falaq"},
-       {ar:'مِنْ شَرِّ مَا خَلَقَ', ph:'min charri mâ khalaq'},
-       {ar:'وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ', ph:'wa min charri ghâsiqin idhâ waqab'},
-       {ar:'وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ', ph:"wa min charri n-naffâthâti fi l-'ouqad"},
-       {ar:'وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', ph:'wa min charri hâsidin idhâ hasad'}],
-     tr:"Dis : Je cherche protection auprès du Seigneur de l'aube naissante, contre le mal de ce qu'Il a créé, contre le mal de l'obscurité quand elle s'étend, contre le mal de celles qui soufflent sur les nœuds, et contre le mal de l'envieux quand il envie."},
-    {id:'nas', title:'114 · An-Nâs', sub:'النَّاس', n:1,
-     lines:[
-       {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'},
-       {ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', ph:"Qoul a'oûdhou bi-rabbi n-nâs"},
-       {ar:'مَلِكِ النَّاسِ', ph:'maliki n-nâs'},
-       {ar:'إِلَهِ النَّاسِ', ph:'ilâhi n-nâs'},
-       {ar:'مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ', ph:'min charri l-waswâsi l-khannâs'},
-       {ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ', ph:'alladhî youwaswisou fî soudoûri n-nâs'},
-       {ar:'مِنَ الْجِنَّةِ وَالنَّاسِ', ph:'mina l-jinnati wa n-nâs'}],
-     tr:"Dis : Je cherche protection auprès du Seigneur des hommes, Souverain des hommes, Dieu des hommes, contre le mal du tentateur furtif, qui souffle le mal dans les poitrines des hommes, qu'il soit djinn ou humain.",
-     src:'Abû Dâwûd 1523'}
-  ]}
+  {id:'sourates', label:'Les 3 sourates', items:[ S112, S113, S114 ]},
+  {id:'quran', label:"Al-Qur'an", quran:true, items:QURAN},
+  {id:'wird', label:'Fâtiha · Qoraych', items:WIRD}
 ];
 
 const PHASES = [
@@ -199,7 +477,7 @@ const PHASES = [
 const TOTAL = 100, KEY = 'adhkar-salat-v1';
 
 /* --- état --- */
-let state = {counts:{}, tasbih:0, tab:'pardon', night:false, ph:true, tr:true};
+let state = {counts:{}, tasbih:0, tab:'pardon', surah:QURAN[0].id, night:false, ph:true, tr:true};
 try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch(e) {}
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
 
@@ -218,9 +496,31 @@ function build(){
 
     const p = el('div', 'panel'); p.id = 'panel-' + t.id;
     if (t.tasbih) p.appendChild(buildTasbih());
+    else if (t.quran) buildQuran(p, t);
     else t.items.forEach(it => p.appendChild(buildCard(it)));
     panels.appendChild(p);
   });
+}
+
+function buildQuran(panel, t){
+  const chips = el('div', 'chips');
+  t.items.forEach(it => {
+    const b = el('button', 'chip', `<span class="dot"></span>${it.title}`);
+    b.dataset.surah = it.id;
+    b.addEventListener('click', () => { state.surah = it.id; save(); refresh(); window.scrollTo({top:0}); });
+    chips.appendChild(b);
+  });
+  panel.appendChild(chips);
+  t.items.forEach(it => panel.appendChild(buildCard(it)));
+  const nav = el('div', 'nav', `<button class="tool" id="q-prev">← Précédente</button><button class="tool" id="q-next">Suivante →</button>`);
+  const go = d => {
+    const i = t.items.findIndex(x => x.id === state.surah);
+    const j = Math.min(t.items.length - 1, Math.max(0, i + d));
+    state.surah = t.items[j].id; save(); refresh(); window.scrollTo({top:0});
+  };
+  nav.querySelector('#q-prev').addEventListener('click', () => go(-1));
+  nav.querySelector('#q-next').addEventListener('click', () => go(1));
+  panel.appendChild(nav);
 }
 
 function buildCard(it){
@@ -284,6 +584,7 @@ function phaseOf(total){
 
 function tabComplete(t){
   if (t.tasbih) return state.tasbih >= TOTAL;
+  if (t.quran) return false; /* lecture libre : pas de pastille de fin */
   return t.items.every(it => (state.counts[it.id] || 0) >= it.n);
 }
 
@@ -304,7 +605,13 @@ function refresh(){
     t.items.forEach(it => {
       const v = state.counts[it.id] || 0, c = $('#card-' + it.id), done = v >= it.n;
       c.classList.toggle('done', done);
-      c.querySelector('.count-btn').textContent = it.n === 1 ? (done ? 'Récité' : 'Réciter') : `${v} / ${it.n}`;
+      c.querySelector('.count-btn').textContent = it.n === 1 ? (done ? (t.quran ? 'Lu' : 'Récité') : (t.quran ? 'Marquer lu' : 'Réciter')) : `${v} / ${it.n}`;
+      if (t.quran) {
+        c.classList.toggle('hide', state.surah !== it.id);
+        const chip = document.querySelector(`.chip[data-surah="${it.id}"]`);
+        chip.classList.toggle('current', state.surah === it.id);
+        chip.classList.toggle('done', done);
+      }
     });
   });
 
@@ -327,9 +634,10 @@ function refresh(){
 $('#btn-ph').addEventListener('click', () => { state.ph = !state.ph; save(); refresh(); });
 $('#btn-tr').addEventListener('click', () => { state.tr = !state.tr; save(); refresh(); });
 $('#btn-night').addEventListener('click', () => { state.night = !state.night; save(); refresh(); });
-$('#btn-reset').addEventListener('click', () => { state.counts = {}; state.tasbih = 0; state.tab = 'pardon'; save(); refresh(); window.scrollTo({top:0}); });
+$('#btn-reset').addEventListener('click', () => { state.counts = {}; state.tasbih = 0; state.tab = 'pardon'; state.surah = QURAN[0].id; save(); refresh(); window.scrollTo({top:0}); });
 
 if (!TABS.some(t => t.id === state.tab)) state.tab = 'pardon';
+if (!QURAN.some(s => s.id === state.surah)) state.surah = QURAN[0].id;
 build(); refresh();
 </script>
 </body>
