@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adhkâr après la prière</title>
+<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#F59E0B; --gold-light:#FBBF24; --navy:#1E3A8A; --navy-mid:#2563EB;
+  --bg1:#FFFBEB; --bg2:#FDE68A; --card:#ffffff; --ar-bg1:#FFFBEB; --ar-bg2:#FEF3C7;
+  --border:#FBBF24; --text:#1F2937; --muted:#6B7280; --shadow:rgba(0,0,0,.07);
+  --ph-color:#111827; --sep:rgba(30,58,138,.10); --title:#1E3A8A; --done:#15803D;
+}
+body.night{
+  --bg1:#1a1a2e; --bg2:#16213e; --card:#2d3748; --ar-bg1:#2d3748; --ar-bg2:#1a202c;
+  --text:#FBD38D; --border:rgba(251,211,141,.35); --muted:#a0aec0; --shadow:rgba(0,0,0,.25);
+  --ph-color:#F1F5F9; --sep:rgba(251,211,141,.14); --title:#FBD38D; --done:#4ADE80;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;min-height:100vh;padding:18px 14px 60px;color:var(--text);transition:background .4s}
+.wrap{max-width:760px;margin:0 auto}
+button{font-family:inherit;cursor:pointer;border:none}
+
+.header{background:var(--card);border-radius:18px;padding:18px 22px;margin-bottom:16px;
+  box-shadow:0 2px 14px var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.logo-ar{font-family:'Scheherazade New',serif;font-size:30px;direction:rtl;color:var(--title);line-height:1.5}
+.logo-fr{font-size:15px;color:var(--gold);font-weight:700;letter-spacing:.3px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tool{background:transparent;border:1.5px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;font-size:14px;font-weight:500;transition:all .2s}
+.tool:hover{transform:translateY(-1px)}
+.tool.on{background:var(--gold);border-color:var(--gold);color:#1F2937}
+
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:var(--card);color:var(--text);padding:11px 18px;border-radius:12px;font-size:16px;font-weight:700;
+  box-shadow:0 2px 8px var(--shadow);transition:all .2s;display:flex;align-items:center;gap:8px}
+.tab:hover{transform:translateY(-2px)}
+.tab.active{background:var(--navy);color:#fff}
+body.night .tab.active{background:var(--gold);color:#1F2937}
+.tab .dot{width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor;opacity:.55}
+.tab.complete .dot{background:var(--done);border-color:var(--done);opacity:1}
+
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 2px 14px var(--shadow);
+  border-left:5px solid var(--gold);transition:border-color .3s}
+.card.done{border-left-color:var(--done)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.card-title{font-size:19px;font-weight:700;color:var(--title)}
+.card-sub{font-size:14px;color:var(--muted);margin-top:2px}
+.counter{display:flex;align-items:center;gap:8px}
+.count-btn{background:var(--gold);color:#1F2937;font-weight:700;font-size:17px;padding:10px 18px;border-radius:12px;min-width:84px;transition:all .15s}
+.count-btn:active{transform:scale(.95)}
+.card.done .count-btn{background:var(--done);color:#fff}
+.reset-btn{background:transparent;border:1.5px solid var(--border);color:var(--muted);width:40px;height:40px;border-radius:12px;font-size:18px}
+
+.text{background:linear-gradient(135deg,var(--ar-bg1),var(--ar-bg2));border:1px solid var(--border);border-radius:14px;padding:6px 18px}
+.line{padding:14px 0;border-bottom:1px solid var(--sep)}
+.line:last-child{border-bottom:none}
+.ar{font-family:'Scheherazade New',serif;font-size:32px;line-height:2;direction:rtl;text-align:right;color:var(--text)}
+.ph{font-family:'Tajawal',sans-serif;font-size:24px;font-weight:500;font-style:normal;color:var(--ph-color);line-height:1.5;margin-top:6px}
+.tr{font-size:17px;color:var(--muted);line-height:1.6;margin-top:14px}
+.src{font-size:13px;color:var(--muted);margin-top:10px;letter-spacing:.3px}
+body.no-ph .ph{display:none}
+body.no-tr .tr{display:none}
+.note{font-size:15px;color:var(--muted);margin:0 4px 14px;line-height:1.5}
+
+/* Tasbih */
+.tasbih{text-align:center}
+.phases{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.phase{border:1.5px solid var(--border);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:500;color:var(--muted)}
+.phase.current{border-color:var(--gold);color:var(--text);font-weight:700}
+.phase.ok{background:var(--gold);border-color:var(--gold);color:#1F2937}
+.tap{position:relative;width:230px;height:230px;border-radius:50%;background:linear-gradient(135deg,var(--ar-bg1),var(--ar-bg2));
+  margin:0 auto 16px;display:block;box-shadow:0 4px 18px var(--shadow);-webkit-tap-highlight-color:transparent;user-select:none;transition:transform .08s}
+.tap:active{transform:scale(.97)}
+.tap svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.tap .num{position:relative;font-size:64px;font-weight:700;color:var(--title);line-height:1}
+.tap .of{position:relative;display:block;font-size:15px;color:var(--muted);margin-top:4px}
+.tasbih .ar{text-align:center;font-size:38px}
+.tasbih .ph{text-align:center}
+.tasbih .tr{text-align:center;margin-top:6px}
+.total{font-size:15px;color:var(--muted);margin:10px 0 14px}
+.footer{text-align:center;margin-top:10px}
+.footer .tool{font-size:15px;padding:10px 18px}
+
+@media(max-width:520px){
+  .ar{font-size:28px}.ph{font-size:21px}.logo-ar{font-size:26px}
+  .card{padding:16px}.tap{width:200px;height:200px}.tap .num{font-size:56px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="logo-ar">أَذْكَارُ مَا بَعْدَ الصَّلَاةِ</div>
+      <div class="logo-fr">Que dire après la prière</div>
+    </div>
+    <div class="tools">
+      <button class="tool" id="btn-ph">Phonétique</button>
+      <button class="tool" id="btn-tr">Traduction</button>
+      <button class="tool" id="btn-night">Nuit</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+
+  <div class="footer">
+    <button class="tool" id="btn-reset">Tout remettre à zéro</button>
+  </div>
+</div>
+
+<script>
+const TAHLIL_SHORT = [
+  {ar:'لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ', ph:'Lâ ilâha illa llâhou wahdahou lâ charîka lah,'},
+  {ar:'لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', ph:"lahou l-moulkou wa lahou l-hamd, wa houwa 'alâ koulli chay'in qadîr."}
+];
+
+const TABS = [
+  {id:'pardon', label:'Le pardon', items:[
+    {id:'istighfar', title:'Demander pardon', sub:'الاِسْتِغْفَار', n:3,
+     lines:[{ar:'أَسْتَغْفِرُ اللهَ', ph:'Astaghfiroullâh'}],
+     tr:'Je demande pardon à Allah.', src:'Muslim 591'},
+    {id:'salam', title:'Allâhoumma anta s-salâm', n:1,
+     lines:[
+       {ar:'اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ', ph:'Allâhoumma anta s-salâm, wa minka s-salâm,'},
+       {ar:'تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ', ph:'tabârakta yâ dha l-jalâli wa l-ikrâm.'}],
+     tr:'Ô Allah, Tu es la Paix et de Toi vient la paix. Béni sois-Tu, ô Détenteur de la majesté et de la générosité.',
+     src:'Muslim 591'}
+  ]},
+  {id:'unicite', label:"L'unicité", items:[
+    {id:'tahlil', title:"L'unicité", sub:'التَّهْلِيل', n:1,
+     lines:[
+       ...TAHLIL_SHORT,
+       {ar:'اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ', ph:"Allâhoumma lâ mâni'a limâ a'tayt, wa lâ mou'tiya limâ mana't,"},
+       {ar:'وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدُّ', ph:"wa lâ yanfa'ou dha l-jaddi minka l-jadd."}],
+     tr:"Nulle divinité digne d'adoration sauf Allah, Seul, sans associé. À Lui la royauté et la louange, et Il est capable de toute chose. Ô Allah, nul ne peut retenir ce que Tu donnes, nul ne peut donner ce que Tu retiens, et la fortune du fortuné ne lui sert à rien auprès de Toi.",
+     src:'Bukhârî 844 · Muslim 593'}
+  ]},
+  {id:'tasbih', label:'33 · 33 · 33', tasbih:true},
+  {id:'kursi', label:'Âyat al-Kursî', items:[
+    {id:'kursi', title:'Âyat al-Kursî', sub:'آيَةُ الْكُرْسِيّ', n:1,
+     lines:[
+       {ar:'اللهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ', ph:'Allâhou lâ ilâha illâ houwa l-hayyou l-qayyoûm'},
+       {ar:'لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ', ph:"lâ ta'khoudhouhou sinatoun wa lâ nawm"},
+       {ar:'لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ', ph:'lahou mâ fi s-samâwâti wa mâ fi l-ard'},
+       {ar:'مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ', ph:"man dha lladhî yachfa'ou 'indahou illâ bi-idhnih"},
+       {ar:'يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ', ph:"ya'lamou mâ bayna aydîhim wa mâ khalfahoum"},
+       {ar:'وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ', ph:"wa lâ youhîtoûna bi-chay'in min 'ilmihi illâ bimâ châ'"},
+       {ar:'وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ', ph:"wasi'a koursiyyouhou s-samâwâti wa l-ard"},
+       {ar:'وَلَا يَئُودُهُ حِفْظُهُمَا', ph:"wa lâ ya'oûdouhou hifdhouhoumâ"},
+       {ar:'وَهُوَ الْعَلِيُّ الْعَظِيمُ', ph:"wa houwa l-'aliyyou l-'adhîm"}],
+     tr:"Allah ! Nulle divinité sauf Lui, le Vivant, Celui qui subsiste par Lui-même. Ni somnolence ni sommeil ne Le saisissent. À Lui appartient tout ce qui est dans les cieux et sur la terre. Qui peut intercéder auprès de Lui sans Sa permission ? Il connaît leur passé et leur futur, et ils n'embrassent de Sa science que ce qu'Il veut. Son Trône s'étend sur les cieux et la terre, et leur garde ne Lui coûte aucune peine. Il est le Très Haut, le Très Grand.",
+     src:'Coran 2:255 · An-Nasâ’î, As-Sunan al-Kubrâ 9848'}
+  ]},
+  {id:'sourates', label:'Les 3 sourates', items:[
+    {id:'ikhlas', title:'112 · Al-Ikhlâs', sub:'الْإِخْلَاص', n:1,
+     lines:[
+       {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'},
+       {ar:'قُلْ هُوَ اللهُ أَحَدٌ', ph:'Qoul houwa llâhou ahad'},
+       {ar:'اللهُ الصَّمَدُ', ph:'Allâhou s-samad'},
+       {ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ', ph:'Lam yalid wa lam yoûlad'},
+       {ar:'وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', ph:'Wa lam yakoun lahou koufouwan ahad'}],
+     tr:"Dis : Il est Allah, Unique. Allah, le Seul à être imploré. Il n'a pas engendré et n'a pas été engendré. Et nul n'est égal à Lui."},
+    {id:'falaq', title:'113 · Al-Falaq', sub:'الْفَلَق', n:1,
+     lines:[
+       {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'},
+       {ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ', ph:"Qoul a'oûdhou bi-rabbi l-falaq"},
+       {ar:'مِنْ شَرِّ مَا خَلَقَ', ph:'min charri mâ khalaq'},
+       {ar:'وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ', ph:'wa min charri ghâsiqin idhâ waqab'},
+       {ar:'وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ', ph:"wa min charri n-naffâthâti fi l-'ouqad"},
+       {ar:'وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', ph:'wa min charri hâsidin idhâ hasad'}],
+     tr:"Dis : Je cherche protection auprès du Seigneur de l'aube naissante, contre le mal de ce qu'Il a créé, contre le mal de l'obscurité quand elle s'étend, contre le mal de celles qui soufflent sur les nœuds, et contre le mal de l'envieux quand il envie."},
+    {id:'nas', title:'114 · An-Nâs', sub:'النَّاس', n:1,
+     lines:[
+       {ar:'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ', ph:'Bismi llâhi r-rahmâni r-rahîm'},
+       {ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', ph:"Qoul a'oûdhou bi-rabbi n-nâs"},
+       {ar:'مَلِكِ النَّاسِ', ph:'maliki n-nâs'},
+       {ar:'إِلَهِ النَّاسِ', ph:'ilâhi n-nâs'},
+       {ar:'مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ', ph:'min charri l-waswâsi l-khannâs'},
+       {ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ', ph:'alladhî youwaswisou fî soudoûri n-nâs'},
+       {ar:'مِنَ الْجِنَّةِ وَالنَّاسِ', ph:'mina l-jinnati wa n-nâs'}],
+     tr:"Dis : Je cherche protection auprès du Seigneur des hommes, Souverain des hommes, Dieu des hommes, contre le mal du tentateur furtif, qui souffle le mal dans les poitrines des hommes, qu'il soit djinn ou humain.",
+     src:'Abû Dâwûd 1523'}
+  ]}
+];
+
+const PHASES = [
+  {n:33, label:'Soubhânallâh', lines:[{ar:'سُبْحَانَ اللهِ', ph:'Soubhânallâh'}], tr:'Gloire à Allah.'},
+  {n:33, label:'Al-hamdoulillâh', lines:[{ar:'الْحَمْدُ لِلَّهِ', ph:'Al-hamdoulillâh'}], tr:'Louange à Allah.'},
+  {n:33, label:'Allâhou akbar', lines:[{ar:'اللهُ أَكْبَرُ', ph:'Allâhou akbar'}], tr:'Allah est le Plus Grand.'},
+  {n:1,  label:'Pour compléter 100', lines:TAHLIL_SHORT, tr:"Nulle divinité digne d'adoration sauf Allah, Seul, sans associé. À Lui la royauté et la louange, et Il est capable de toute chose."}
+];
+const TOTAL = 100, KEY = 'adhkar-salat-v1';
+
+/* --- état --- */
+let state = {counts:{}, tasbih:0, tab:'pardon', night:false, ph:true, tr:true};
+try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
+
+const $ = s => document.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const linesHTML = lines => lines.map(l => `<div class="line"><div class="ar">${l.ar}</div><div class="ph">${l.ph}</div></div>`).join('');
+
+/* --- rendu --- */
+function build(){
+  const tabs = $('#tabs'), panels = $('#panels');
+  TABS.forEach(t => {
+    const b = el('button', 'tab', `<span class="dot"></span>${t.label}`);
+    b.dataset.tab = t.id;
+    b.addEventListener('click', () => { state.tab = t.id; save(); refresh(); window.scrollTo({top:0}); });
+    tabs.appendChild(b);
+
+    const p = el('div', 'panel'); p.id = 'panel-' + t.id;
+    if (t.tasbih) p.appendChild(buildTasbih());
+    else t.items.forEach(it => p.appendChild(buildCard(it)));
+    panels.appendChild(p);
+  });
+}
+
+function buildCard(it){
+  const c = el('div', 'card'); c.id = 'card-' + it.id;
+  c.innerHTML = `
+    <div class="card-head">
+      <div><div class="card-title">${it.title}</div>${it.sub ? `<div class="card-sub" dir="rtl">${it.sub}</div>` : ''}</div>
+      <div class="counter">
+        <button class="count-btn" aria-label="Compter"></button>
+        <button class="reset-btn" aria-label="Remettre à zéro">↺</button>
+      </div>
+    </div>
+    <div class="text">${linesHTML(it.lines)}</div>
+    <div class="tr">${it.tr}</div>
+    ${it.src ? `<div class="src">${it.src}</div>` : ''}`;
+  c.querySelector('.count-btn').addEventListener('click', () => {
+    const v = state.counts[it.id] || 0;
+    if (v < it.n) { state.counts[it.id] = v + 1; save(); refresh(); }
+  });
+  c.querySelector('.reset-btn').addEventListener('click', () => { state.counts[it.id] = 0; save(); refresh(); });
+  return c;
+}
+
+function buildTasbih(){
+  const c = el('div', 'card tasbih'); c.id = 'card-tasbih';
+  const R = 104, C = 2 * Math.PI * R;
+  c.innerHTML = `
+    <div class="phases">${PHASES.map((p,i) => `<span class="phase" data-i="${i}">${p.label}${p.n > 1 ? ' ×' + p.n : ''}</span>`).join('')}</div>
+    <button class="tap" id="tap" aria-label="Compter">
+      <svg viewBox="0 0 230 230">
+        <circle cx="115" cy="115" r="${R}" fill="none" stroke="var(--sep)" stroke-width="8"/>
+        <circle id="ring" cx="115" cy="115" r="${R}" fill="none" stroke="var(--gold)" stroke-width="8" stroke-linecap="round"
+                stroke-dasharray="${C}" stroke-dashoffset="${C}" style="transition:stroke-dashoffset .2s"/>
+      </svg>
+      <span class="num" id="t-num">0</span><span class="of" id="t-of"></span>
+    </button>
+    <div class="total" id="t-total"></div>
+    <div class="text" id="t-text"></div>
+    <div class="tr" id="t-tr"></div>
+    <div class="src">Muslim 597</div>
+    <div style="margin-top:14px"><button class="reset-btn" id="t-reset" aria-label="Remettre à zéro">↺</button></div>`;
+  c.querySelector('#tap').addEventListener('click', () => {
+    if (state.tasbih >= TOTAL) return;
+    const before = phaseOf(state.tasbih).i;
+    state.tasbih++; save(); refresh();
+    if (state.tasbih >= TOTAL || phaseOf(state.tasbih).i !== before) { try { navigator.vibrate && navigator.vibrate(60); } catch(e) {} }
+  });
+  c.querySelector('#t-reset').addEventListener('click', () => { state.tasbih = 0; save(); refresh(); });
+  return c;
+}
+
+/* phase courante pour un total donné */
+function phaseOf(total){
+  let acc = 0;
+  for (let i = 0; i < PHASES.length; i++) {
+    if (total < acc + PHASES[i].n) return {i, done: total - acc};
+    acc += PHASES[i].n;
+  }
+  return {i: PHASES.length - 1, done: PHASES[PHASES.length - 1].n};
+}
+
+function tabComplete(t){
+  if (t.tasbih) return state.tasbih >= TOTAL;
+  return t.items.every(it => (state.counts[it.id] || 0) >= it.n);
+}
+
+function refresh(){
+  document.body.classList.toggle('night', !!state.night);
+  document.body.classList.toggle('no-ph', !state.ph);
+  document.body.classList.toggle('no-tr', !state.tr);
+  $('#btn-ph').classList.toggle('on', !!state.ph);
+  $('#btn-tr').classList.toggle('on', !!state.tr);
+  $('#btn-night').textContent = state.night ? 'Jour' : 'Nuit';
+
+  TABS.forEach(t => {
+    const b = document.querySelector(`.tab[data-tab="${t.id}"]`);
+    b.classList.toggle('active', state.tab === t.id);
+    b.classList.toggle('complete', tabComplete(t));
+    $('#panel-' + t.id).classList.toggle('active', state.tab === t.id);
+    if (t.tasbih) return;
+    t.items.forEach(it => {
+      const v = state.counts[it.id] || 0, c = $('#card-' + it.id), done = v >= it.n;
+      c.classList.toggle('done', done);
+      c.querySelector('.count-btn').textContent = it.n === 1 ? (done ? 'Récité' : 'Réciter') : `${v} / ${it.n}`;
+    });
+  });
+
+  const {i, done} = phaseOf(state.tasbih), p = PHASES[i], finished = state.tasbih >= TOTAL;
+  const R = 104, C = 2 * Math.PI * R;
+  $('#t-num').textContent = finished ? TOTAL : done;
+  $('#t-of').textContent = finished ? 'terminé' : (p.n > 1 ? '/ ' + p.n : 'une fois');
+  $('#ring').setAttribute('stroke-dashoffset', finished ? 0 : C * (1 - done / p.n));
+  $('#t-total').textContent = `Total ${state.tasbih} / ${TOTAL}`;
+  $('#t-text').innerHTML = linesHTML(p.lines);
+  $('#t-tr').textContent = p.tr;
+  $('#card-tasbih').classList.toggle('done', finished);
+  document.querySelectorAll('.phase').forEach(s => {
+    const k = +s.dataset.i;
+    s.classList.toggle('ok', finished || k < i);
+    s.classList.toggle('current', !finished && k === i);
+  });
+}
+
+$('#btn-ph').addEventListener('click', () => { state.ph = !state.ph; save(); refresh(); });
+$('#btn-tr').addEventListener('click', () => { state.tr = !state.tr; save(); refresh(); });
+$('#btn-night').addEventListener('click', () => { state.night = !state.night; save(); refresh(); });
+$('#btn-reset').addEventListener('click', () => { state.counts = {}; state.tasbih = 0; state.tab = 'pardon'; save(); refresh(); window.scrollTo({top:0}); });
+
+if (!TABS.some(t => t.id === state.tab)) state.tab = 'pardon';
+build(); refresh();
+</script>
+</body>
+</html>
